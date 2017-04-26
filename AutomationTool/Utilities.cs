@@ -1,10 +1,13 @@
 ﻿using System;
+using System.IO;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
 namespace AutomationTool
 {
@@ -20,6 +23,12 @@ namespace AutomationTool
         {
             this.x = x;
             this.y = y;
+        }
+        public Boolean Equals(point Object)
+        {
+            if ((this.x == Object.x) && (this.y == Object.y))
+                return true;
+            return false;
         }
     }
     class region
@@ -52,7 +61,7 @@ namespace AutomationTool
             System.Threading.Thread.Sleep(3000);
             try
                 {
-                Rectangle s_rect = new Rectangle(window.Location.x - (window.width/2), window.Location.y - (window.height/2), window.width, window.height);
+                Rectangle s_rect = new Rectangle(window.Location.x, window.Location.y, window.width, window.height);
 
                 using (Bitmap bmp = new Bitmap(s_rect.Width, s_rect.Height))
                 {
@@ -70,5 +79,70 @@ namespace AutomationTool
             MouseLocation.y = Cursor.Position.Y;
             return MouseLocation;
         }
+        public static void WriteToFile(string filename, string Content)
+        {
+            using (System.IO.StreamWriter file =
+               new System.IO.StreamWriter(filename, true))
+            {
+                file.WriteLine(Content);
+            }
+        }
     }
+    public static class KeyHook
+    {
+        [DllImport("user32.dll")]
+        private static extern short GetAsyncKeyState(Keys vKey);
+
+        public delegate void KeyEventDelegate(Keys key);
+
+        private static Thread _pollingThread;
+        private static volatile Dictionary<Keys, bool> _keysStates = new Dictionary<Keys, bool>();
+
+        internal static void Initialize()
+        {
+
+            if (_pollingThread != null && _pollingThread.IsAlive)
+            {
+                return;
+            }
+            foreach (Keys key in Enum.GetValues(typeof(Keys)))
+            {
+                _keysStates[key] = false;
+            }
+
+
+            _pollingThread = new Thread(PollKeys) { IsBackground = true, Name = "KeyThread" };
+            _pollingThread.Start();
+        }
+
+
+        private static void PollKeys()
+        {
+            while (true)
+            {
+                Thread.Sleep(10);
+                foreach (Keys key in Enum.GetValues(typeof(Keys)))
+                {
+                    if (((GetAsyncKeyState(key) & (1 << 15)) != 0))
+                    {
+                        if (_keysStates[key]) continue;
+                        OnKeyDown?.Invoke(key);
+                        _keysStates[key] = true;
+                    }
+                    else
+                    {
+                        if (!_keysStates[key]) continue;
+                        OnKeyUp?.Invoke(key);
+                        _keysStates[key] = false;
+                    }
+                }
+
+
+            }
+        }
+
+        public static event KeyEventDelegate OnKeyDown;
+        public static event KeyEventDelegate OnKeyUp;
+    }
+
 }

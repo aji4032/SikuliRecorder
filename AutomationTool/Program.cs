@@ -1,54 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AutomationTool
 {
     class Program
     {
+        static int Counter = 0;
+
         static void Main(string[] args)
-        {
-            while(true)
-            {
-                //while()
-                //
-                
-                //if (key == "c")
-                //{
-                //    region test = new region(Utilities.CurrentMousePosition(), 100, 100);
-                //    Utilities.CaptureScreen(test, @"C:\Users\Aji\Desktop\test.png");
-                //    Console.WriteLine();
-                //}
-            }
-            //Console.WriteLine(Utilities.CurrentMousePosition());
+        {            
+                KeyHook.OnKeyDown += key =>
+                {
+                    if (key.ToString() == "LButton")
+                        LeftMouseButtonScenario();
+                    else
+                    {
+                        string Content = "Type(\"" + key + "\")";
+                        Utilities.WriteToFile(@"C:\Users\Aji\Desktop\Test.sikuli\Test.py", Content);
+                    }
+                };
+                KeyHook.Initialize();
+                Console.WriteLine("Press enter to stop...");
+                Console.Read();
         }
-        private static void decideAction(string key)
+        static void LeftMouseButtonScenario()
         {
-            switch (key.ToLower())
-            {
-                case "c":
-                    caseC();
-                    break;
-
-                case "d":
-                    caseD();
-                    break;
-
-                case "v":
-                    caseV();
-                    break;
-
-                default:
-                    Console.WriteLine("Invalid selection!");
-                    break;
-            }
-
-        }
-        private static void caseC()
-        {
-            throw new NotImplementedException();
+            String Location = @"C:\Users\Aji\Desktop\Test.sikuli";
+            region Screen = new region(0, 0, 1366, 728);
+            string filename = Path.Combine(Location, (Counter + ".png"));
+            Utilities.CaptureScreen(Screen, filename);
+            string Content = "click(Location(" + Utilities.CurrentMousePosition().x + "," + Utilities.CurrentMousePosition().y + "))";
+            Utilities.WriteToFile(@"C:\Users\Aji\Desktop\Test.sikuli\Test.py", Content);
+            Content = "wait(\"" + Counter + ".png\", 60)";
+            Utilities.WriteToFile(@"C:\Users\Aji\Desktop\Test.sikuli\Test.py", Content);
+            Console.WriteLine("\a");
+            Counter++;
         }
     }
 }
