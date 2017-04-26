@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using System.Configuration;
 
 namespace AutomationTool
 {
@@ -35,6 +36,12 @@ namespace AutomationTool
     {
         public point Location;
         public int width, height;
+        public region()
+        {
+            Location = new point();
+            this.width = 0;
+            this.height = 0;
+        }
         public region(int width, int height)
         {
             Location = new point();
@@ -72,6 +79,35 @@ namespace AutomationTool
             }
             catch (Exception) { /*TODO: Any exception handling.*/ }
         }
+        public static void CropImage()
+        {
+            region ToCrop = new region();
+            ToCrop.Location.x = Convert.ToInt32(GetFromConfigFile("RegionX"));
+            ToCrop.Location.y = Convert.ToInt32(GetFromConfigFile("RegionY"));
+            ToCrop.width = Convert.ToInt32(GetFromConfigFile("RegionW"));
+            ToCrop.height = Convert.ToInt32(GetFromConfigFile("RegionH"));
+
+            DirectoryInfo d = new DirectoryInfo(
+                                  Path.Combine( GetFromConfigFile("TestLocation"),
+                                                GetFromConfigFile("ScriptName")+".sikuli"));
+
+            FileInfo[] Files = d.GetFiles("*.png");
+            foreach (FileInfo file in Files)
+            {
+                Rectangle cropRect = new Rectangle(ToCrop.Location.x, ToCrop.Location.y, ToCrop.width, ToCrop.height);
+                Bitmap src = Image.FromFile(Path.Combine(d.ToString(),file.ToString())) as Bitmap;
+                Bitmap target = new Bitmap(cropRect.Width, cropRect.Height);
+
+                using (Graphics g = Graphics.FromImage(target))
+                {
+                    g.DrawImage(src, new Rectangle(0, 0, target.Width, target.Height),
+                                     cropRect,
+                                     GraphicsUnit.Pixel);
+                    target.Save(Path.Combine(d.ToString(), "Cropped_" + file.ToString()), System.Drawing.Imaging.ImageFormat.Png);
+                }
+            }
+        }
+
         public static point CurrentMousePosition()
         {
             point MouseLocation = new point();
@@ -86,6 +122,21 @@ namespace AutomationTool
             {
                 file.WriteLine(Content);
             }
+        }
+
+        public static string GetFromConfigFile(string Key)
+        {
+            return ConfigurationManager.AppSettings[Key] != null ? ConfigurationManager.AppSettings[Key].ToString() : null;
+        }
+        public static void StoreToConfigFile(string Key, string Value)
+        {
+            Configuration config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            if (config.AppSettings.Settings[Key] == null)
+                config.AppSettings.Settings.Add(Key, Value);
+            else
+                config.AppSettings.Settings[Key].Value = Value;
+            config.Save(ConfigurationSaveMode.Modified);
+            ConfigurationManager.RefreshSection(config.AppSettings.SectionInformation.Name);
         }
     }
     public static class KeyHook
