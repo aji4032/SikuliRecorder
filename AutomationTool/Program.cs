@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Reflection;
 using Utils = AutomationTool.Utilities;
 
 namespace AutomationTool
@@ -17,32 +13,40 @@ namespace AutomationTool
         static void Main(string[] args)
         {
             Setup();
-            KeyHook.OnKeyUp += key =>
+            KeyHook.OnKeyDown += key =>
             {
-                if (key.ToString() == "LButton")
-                    LeftMouseButtonScenario();
-                else if (key.ToString() == "RButton")
-                    RightMouseButtonScenario();
-                else
+                Console.WriteLine("KD:" + key);
+                if(key.ToString().Equals("ControlKey"))
+                    Console.WriteLine("this works");
+                try
                 {
-                    string Content = "Type(\"" + key + "\")";
+                    Type keyType = Type.GetType("AutomationTool." + key.ToString());
+                    MethodInfo keyDownMethod = keyType.GetMethod("onKeyDown", BindingFlags.Static | BindingFlags.Public);
+                    Counter = (int)keyDownMethod.Invoke(null, new object[] { Counter });
+                } catch (NullReferenceException)
+                {
+                    string Content = "keyDown(\"" + key + "\")";
                     Utilities.WriteToFile(ScriptFile, Content);
                 }
+            };
+            KeyHook.OnKeyUp += key =>
+            {
+                Console.WriteLine("KU:" + key);
+                try
+                {
+                    Type keyType = Type.GetType("AutomationTool." + key.ToString());
+                    MethodInfo keyUpMethod = keyType.GetMethod("onKeyUp", BindingFlags.Static | BindingFlags.Public);
+                    Counter = (int)keyUpMethod.Invoke(keyUpMethod, new object[] { Counter });
+                } catch(NullReferenceException)
+                {
+                    string Content = "keyUp(\"" + key + "\")";
+                    Utilities.WriteToFile(ScriptFile, Content);
+                }
+
             };
             KeyHook.Initialize();
             Console.Read();
         }
-
-        private static void RightMouseButtonScenario()
-        {
-            Counter--;
-            region Screen = new region(0, 0, 1366, 768);
-            string filename = Path.Combine(ScriptFolder, (Counter + ".png"));
-            Utilities.CaptureScreen(Screen, filename);
-            Console.WriteLine("\a");
-            Counter++;
-        }
-
         private static void Setup()
         {
             ScriptFolder = Path.Combine(Utilities.GetFromConfigFile("TestLocation"), (Utilities.GetFromConfigFile("ScriptName") + ".sikuli"));
@@ -51,19 +55,6 @@ namespace AutomationTool
                 Directory.CreateDirectory(ScriptFolder);
             if (!File.Exists(ScriptFile))
                 File.Create(ScriptFile);
-        }
-
-        static void LeftMouseButtonScenario()
-        {
-            region Screen = new region(0, 0, 1366, 768);
-            string filename = Path.Combine(ScriptFolder, (Counter + ".png"));
-            Utilities.CaptureScreen(Screen, filename);
-            string Content = "click(Location(" + Utils.CurrentMousePosition().x + "," + Utils.CurrentMousePosition().y + "))";
-            Utilities.WriteToFile(ScriptFile, Content);
-            Content = "wait(\"" + Counter + ".png\", 60)";
-            Utilities.WriteToFile(ScriptFile, Content);
-            Console.WriteLine("\a");
-            Counter++;
         }
     }
 }

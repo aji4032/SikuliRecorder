@@ -79,6 +79,7 @@ namespace AutomationTool
             }
             catch (Exception) { /*TODO: Any exception handling.*/ }
         }
+
         public static void CropImage()
         {
             region ToCrop = new region();
@@ -143,12 +144,11 @@ namespace AutomationTool
     {
         [DllImport("user32.dll")]
         private static extern short GetAsyncKeyState(Keys vKey);
-
         public delegate void KeyEventDelegate(Keys key);
-
         private static Thread _pollingThread;
+        public static event KeyEventDelegate OnKeyDown;
+        public static event KeyEventDelegate OnKeyUp;
         private static volatile Dictionary<Keys, bool> _keysStates = new Dictionary<Keys, bool>();
-
         internal static void Initialize()
         {
 
@@ -165,8 +165,6 @@ namespace AutomationTool
             _pollingThread = new Thread(PollKeys) { IsBackground = true, Name = "KeyThread" };
             _pollingThread.Start();
         }
-
-
         private static void PollKeys()
         {
             while (true)
@@ -191,9 +189,5 @@ namespace AutomationTool
 
             }
         }
-
-        public static event KeyEventDelegate OnKeyDown;
-        public static event KeyEventDelegate OnKeyUp;
     }
-
 }
