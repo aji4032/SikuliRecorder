@@ -5,7 +5,9 @@ D:\Visual Studio Projects\C#\AutomationTool\AutomationTool\bin\Debug\AutomationT
 D:\Visual Studio Projects\C#\AutomationTool\AutomationTool\obj\Debug\AutomationTool.exe
 D:\Visual Studio Projects\C#\AutomationTool\AutomationTool\obj\Debug\AutomationTool.pdb
 D:\Development\Visual Studio Projects\C#\AutomationTool\AutomationTool\bin\Debug\AutomationTool.exe.config
-D:\Development\Visual Studio Projects\C#\AutomationTool\AutomationTool\obj\Debug\AutomationTool.exe
-D:\Development\Visual Studio Projects\C#\AutomationTool\AutomationTool\obj\Debug\AutomationTool.pdb
 D:\Development\Visual Studio Projects\C#\AutomationTool\AutomationTool\bin\Debug\AutomationTool.exe
 D:\Development\Visual Studio Projects\C#\AutomationTool\AutomationTool\bin\Debug\AutomationTool.pdb
+D:\Development\Visual Studio Projects\C#\AutomationTool\AutomationTool\obj\Debug\AutomationTool.exe
+D:\Development\Visual Studio Projects\C#\AutomationTool\AutomationTool\obj\Debug\AutomationTool.pdb
+D:\Development\Visual Studio Projects\C#\AutomationTool\AutomationTool\bin\Debug\ChopperTheCropper.jar
+D:\Development\Visual Studio Projects\C#\AutomationTool\AutomationTool\bin\Debug\config.properties

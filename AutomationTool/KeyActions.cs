@@ -227,7 +227,7 @@ namespace AutomationTool
         {
             Process clientProcess = new Process();
             clientProcess.StartInfo.FileName = "java";
-            string args = @"-jar testJar.jar " + Utils.GetFromConfigFile("TestLocation") + "\\" + Utils.GetFromConfigFile("ScriptName") + ".sikuli\\" + (counter - 1) + ".png " + keyDownLocation.x + " " + keyDownLocation.y;
+            string args = @"-jar ChopperTheCropper.jar " + Utils.GetFromConfigFile("TestLocation") + "\\" + Utils.GetFromConfigFile("ScriptName") + ".sikuli\\" + (counter - 1) + ".png " + keyDownLocation.x + " " + keyDownLocation.y;
             clientProcess.StartInfo.Arguments = args;
             clientProcess.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             clientProcess.Start();

@@ -1,5 +1,0 @@
-D:\Development\Visual Studio Projects\C#\AutomationTool\Phase2\bin\Debug\Phase2.exe.config
-D:\Development\Visual Studio Projects\C#\AutomationTool\Phase2\bin\Debug\Phase2.exe
-D:\Development\Visual Studio Projects\C#\AutomationTool\Phase2\bin\Debug\Phase2.pdb
-D:\Development\Visual Studio Projects\C#\AutomationTool\Phase2\obj\Debug\Phase2.exe
-D:\Development\Visual Studio Projects\C#\AutomationTool\Phase2\obj\Debug\Phase2.pdb
