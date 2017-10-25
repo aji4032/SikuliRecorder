@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -158,6 +159,18 @@ namespace AutomationTool
         }
     }
 
+    class F2
+    {
+        public static int onKeyDown(int Counter)
+        {
+            return Counter;
+        }
+        public static int onKeyUp(int Counter)
+        {
+            return Counter;
+        }
+    }
+
     //Others:
     //Mouse:
     class LButton
@@ -171,20 +184,68 @@ namespace AutomationTool
         public static int onKeyUp(int Counter)
         {
             point keyUpLocation = Utils.CurrentMousePosition();
+            TakeScreenshot(Counter);
+            string Content = null;
+            if (!isLocationWithinBounds(keyUpLocation))
+            {
+                if (keyUpLocation.Equals(keyDownLocation))
+                    Content = "click(Location(" + Utils.CurrentMousePosition().x + "," + Utils.CurrentMousePosition().y + "))";
+                else
+                    Content = "dragDrop(Location(" + keyDownLocation.x + "," + keyDownLocation.y + "),Location(" + keyUpLocation.x + "," + keyUpLocation.y + "))";
+            }
+            else
+            {
+                Task.Run(() => StartCropProcess(Counter, keyDownLocation));
+                if (keyUpLocation.Equals(keyDownLocation))
+                {
+                    Content = "#click(Location(" + Utils.CurrentMousePosition().x + "," + Utils.CurrentMousePosition().y + "))";
+                    Content += "\nclick(Pattern(\"" + (Counter - 1) + ".png\").similar(0.9).targetOffset(0, 0))";
+                }
+                else
+                {
+                    Content = "#dragDrop(Location(" + keyDownLocation.x + "," + keyDownLocation.y + "),Location(" + keyUpLocation.x + "," + keyUpLocation.y + "))";
+                    Content += "\ndragDrop(Pattern(\"" + (Counter - 1) + ".png\".similar(0.9).targetOffset(0, 0), ";
+                    Content += "Pattern(\"" + (Counter - 1) + ".png\".similar(0.9).targetOffset(" + (keyUpLocation.x - keyDownLocation.x) + ", " + (keyUpLocation.y - keyDownLocation.y) + "))";
+                }
+            }
+            Content += "\nwait(Pattern(\"" + Counter + ".png\").similar(0.9), 30)";
+            Utils.WriteToFile(Program.ScriptFile, Content);
+            keyDownLocation = null;
+            Counter++;
+            Console.WriteLine("\a");
+            return Counter;
+        }
+
+        private static void TakeScreenshot(int Counter)
+        {
             region screen = new region(Screen.PrimaryScreen.Bounds.X, Screen.PrimaryScreen.Bounds.Y, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
             string filename = Path.Combine(Program.ScriptFolder, (Counter + ".png"));
             Utils.CaptureScreen(screen, filename);
-            string Content;
-            if (keyUpLocation.Equals(keyDownLocation))
-                Content = "click(Location(" + Utils.CurrentMousePosition().x + "," + Utils.CurrentMousePosition().y + "))";
+        }
+
+        private static void StartCropProcess(int counter, point keyDownLocation)
+        {
+            Process clientProcess = new Process();
+            clientProcess.StartInfo.FileName = "java";
+            string args = @"-jar testJar.jar " + Utils.GetFromConfigFile("TestLocation") + "\\" + Utils.GetFromConfigFile("ScriptName") + ".sikuli\\" + (counter - 1) + ".png " + keyDownLocation.x + " " + keyDownLocation.y;
+            clientProcess.StartInfo.Arguments = args;
+            clientProcess.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            clientProcess.Start();
+            //For Future development:
+            //int code = clientProcess.ExitCode != 0)
+        }
+
+        private static bool isLocationWithinBounds(point keyUpLocation)
+        {
+            int x = Convert.ToInt32(Utils.GetFromConfigFile("BoundX")),
+                y = Convert.ToInt32(Utils.GetFromConfigFile("BoundY")),
+                w = Convert.ToInt32(Utils.GetFromConfigFile("BoundW")),
+                h = Convert.ToInt32(Utils.GetFromConfigFile("BoundH"));
+
+            if(keyUpLocation.x > x && keyUpLocation.x < (x + w) && keyUpLocation.y > y && keyUpLocation.y < (y + h))
+                return true;
             else
-                Content = "dragDrop(Location(" + keyDownLocation.x + "," + keyDownLocation.y + "),Location(" + keyUpLocation.x + "," + keyUpLocation.y + "))";
-            keyDownLocation = null;
-            Content += "\nwait(\"" + Counter + ".png\", 30)";
-            Utils.WriteToFile(Program.ScriptFile, Content);
-            Console.WriteLine("\a");
-            Counter++;
-            return Counter;
+                return false;
         }
     }
     class RButton

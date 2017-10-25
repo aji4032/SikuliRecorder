@@ -8,24 +8,43 @@ namespace AutomationTool
 {
     class Program
     {
-        static int Counter = 1;
+        static int Counter = 0;
         public static string ScriptFolder = Path.Combine(Utils.GetFromConfigFile("TestLocation"), (Utils.GetFromConfigFile("ScriptName") + ".sikuli"));
         public static string ScriptFile = Path.Combine(ScriptFolder, (Utils.GetFromConfigFile("ScriptName") + ".py"));
 
         static bool appRunning = false;
-        static int  appRunFlag;
-
-        static bool altKey = false;
-        static bool ctrlKey = false;
-        static bool shiftKey = false;
+        static bool instructions = true;
 
         static void Main(string[] args)
         {
             Setup();
+            if (instructions)
+            {
+                Console.WriteLine("*******************************************");
+                Console.WriteLine("************** Instructions ***************");
+                Console.WriteLine("*******************************************");
+                Console.WriteLine("Press F2 to Start/Pause recording.");
+                Console.WriteLine("Right click to re-capture last screenshot.");
+                Console.WriteLine("*******************************************");
+                instructions = false;
+            }
             //For KeyDown Operations
             KeyHook.OnKeyDown += key =>
             {
-                if(appRunning)
+                if (key.ToString().Equals("F2"))
+                {
+                    if(!appRunning)
+                    {
+                        Utils.CaptureScreen(new region(Screen.PrimaryScreen.Bounds.X, Screen.PrimaryScreen.Bounds.Y,
+                                Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height),
+                                Path.Combine(Program.ScriptFolder, (Counter + ".png")));
+                        Utils.WriteToFile(ScriptFile, "wait(Pattern(\"" + Counter + ".png\").similar(0.9), 30)");
+                        Counter++;
+                    }
+                    Console.Write("\a");
+                    appRunning = !appRunning;
+                }
+                if (appRunning)
                 {
                     try
                     {
@@ -39,64 +58,23 @@ namespace AutomationTool
                         Utils.WriteToFile(ScriptFile, Content);
                     }
                 }
-                else
-                { 
-                    if (key.ToString().Equals("Menu"))
-                        altKey = true;
-                    if (key.ToString().Equals("ControlKey"))
-                        ctrlKey = true;
-                    if (key.ToString().Equals("ShiftKey"))
-                        shiftKey = true;
-                    //To start the recorder press ALT+CTRL+SHIFT
-                    if (altKey && ctrlKey && shiftKey)
-                    {
-                        Console.WriteLine("\a");
-                        appRunning = true;
-                        appRunFlag = 3;
-                    }
-                }
             };
             //For KeyDown Operations
             KeyHook.OnKeyUp += key =>
             {
                 if (appRunning)
                 {
-                    //To make sure initial release of ALT, SHIFT and CTRL keys are not recorded.
-                    if (appRunFlag == 0)
+                    try
                     {
-                        try
-                        {
-                            Type keyType = Type.GetType("AutomationTool." + key.ToString());
-                            MethodInfo keyUpMethod = keyType.GetMethod("onKeyUp", BindingFlags.Static | BindingFlags.Public);
-                            Counter = (int)keyUpMethod.Invoke(keyUpMethod, new object[] { Counter });
-                        }
-                        catch (NullReferenceException)
-                        {
-                            string Content = "keyUp(\"" + key + "\")";
-                            Utils.WriteToFile(ScriptFile, Content);
-                        }
+                        Type keyType = Type.GetType("AutomationTool." + key.ToString());
+                        MethodInfo keyUpMethod = keyType.GetMethod("onKeyUp", BindingFlags.Static | BindingFlags.Public);
+                        Counter = (int)keyUpMethod.Invoke(keyUpMethod, new object[] { Counter });
                     }
-                    else if (key.ToString().Equals("Menu") || key.ToString().Equals("ControlKey") || key.ToString().Equals("ShiftKey"))
+                    catch (NullReferenceException)
                     {
-                        appRunFlag--;
-                        if (appRunFlag == 0)
-                        {
-                            Utils.CaptureScreen(new region(Screen.PrimaryScreen.Bounds.X, Screen.PrimaryScreen.Bounds.Y,
-                                Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height),
-                                Path.Combine(ScriptFolder, "0.png"));
-                            Console.WriteLine("\a");
-                            Utils.WriteToFile(ScriptFile, "wait(\"0.png\", 30)");
-                        }
+                        string Content = "keyUp(\"" + key + "\")";
+                        Utils.WriteToFile(ScriptFile, Content);
                     }
-                }
-                else
-                {
-                    if (key.ToString().Equals("Menu"))
-                        altKey = false;
-                    if (key.ToString().Equals("ControlKey"))
-                        ctrlKey = false;
-                    if (key.ToString().Equals("ShiftKey"))
-                        shiftKey = false;
                 }
             };
             KeyHook.Initialize();
