@@ -25,12 +25,12 @@ namespace BrowserBasedSolution
             if (instructions)
             {
                 Setup();
-                Console.WriteLine("*******************************************");
-                Console.WriteLine("************** Instructions ***************");
-                Console.WriteLine("*******************************************");
-                Console.WriteLine("Press F2 to Start/Pause recording.");
-                Console.WriteLine("Right click to re-capture last screenshot.");
-                Console.WriteLine("*******************************************");
+                Console.WriteLine("*********************************************");
+                Console.WriteLine("*************** Instructions ****************");
+                Console.WriteLine("*********************************************");
+                Console.WriteLine("1. Press F2 to Start/Pause recording.");
+                Console.WriteLine("2. Right click to re-capture last screenshot.");
+                Console.WriteLine("*********************************************");
                 instructions = false;
             }
             //For KeyDown Operations
@@ -44,8 +44,8 @@ namespace BrowserBasedSolution
                         Utils.WriteToFile(ScriptFile, "wait(Pattern(\"" + Counter + ".png\").similar(0.9), 30)");
                         Counter++;
                     }
-                    Console.Write("\a");
                     appRunningStatus = !appRunningStatus;
+                    Console.Write("\a");
                 }
                 if (appRunningStatus)
                 {

@@ -222,8 +222,6 @@ namespace BrowserBasedSolution
         }
         private static void StartCropProcess(String fileToCrop, Point centerLoc)
         {
-            if(centerLoc == null && Program.DebugMode == true) 
-                centerLoc = new Point(0, 0);
             String filename = "java";
             String args = @"-jar ChopperTheCropper.jar " + fileToCrop + " " + + centerLoc.X + " " + centerLoc.Y;
             Process clientProcess = new Process();

@@ -9,3 +9,8 @@ D:\Development\Visual Studio Projects\C#\AutomationTool\BrowserBasedSolution\obj
 D:\Development\Visual Studio Projects\C#\SikuliRecorder\BrowserBasedSolution\bin\Debug\BrowserBasedSolution.exe.config
 D:\Development\Visual Studio Projects\C#\SikuliRecorder\BrowserBasedSolution\obj\Debug\BrowserBasedSolution.exe
 D:\Development\Visual Studio Projects\C#\SikuliRecorder\BrowserBasedSolution\obj\Debug\BrowserBasedSolution.pdb
+D:\Development\Visual Studio Projects\C#\SikuliRecorder\BrowserBasedSolution\bin\Debug\ChopperTheCropper.jar
+D:\Development\Visual Studio Projects\C#\SikuliRecorder\BrowserBasedSolution\bin\Debug\config.properties
+D:\Development\Visual Studio Projects\C#\SikuliRecorder\BrowserBasedSolution\bin\Debug\BrowserBasedSolution.exe
+D:\Development\Visual Studio Projects\C#\SikuliRecorder\BrowserBasedSolution\bin\Debug\BrowserBasedSolution.pdb
+D:\Development\Visual Studio Projects\C#\SikuliRecorder\BrowserBasedSolution\obj\Debug\BrowserBasedSolution.csprojResolveAssemblyReference.cache
